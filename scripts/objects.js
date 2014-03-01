@@ -14,7 +14,7 @@
         this.isListening = true;
         this.listeningIcon; 
 
-        this.toggleListening = function toggleListening() {
+        this.toggle = function toggle() {
             if (this.isListening) {
                 this.listeningIcon.tween = new Kinetic.Tween({
                     node: this.listeningIcon,

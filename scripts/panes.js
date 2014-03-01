@@ -12,15 +12,14 @@ function AnnotationPane() {
     this.selectorPosition = 0; this.selectorOrigin = this.y + 70 + (this.padding * 3);
     this.menuItems = new Array();
     
-   
     //Toggle all menu item
     this.toggleAll = new Object({ name: "Toggle All", toggleOn: false});
     this.toggleAll.toggle = function toggle() {
         if (this.toggleOn) {
-            friends.forEach(function (entry) { if (!entry.isListening) { entry.toggleListening(); } });
+            friends.forEach(function (entry) { if (!entry.isListening) { entry.toggle(); } });
             this.toggleOn = false;
         } else {
-            friends.forEach(function (entry) { if (entry.isListening) { entry.toggleListening(); } });            
+            friends.forEach(function (entry) { if (entry.isListening) { entry.toggle(); } });            
             this.toggleOn = true;
         }
     }
@@ -98,16 +97,16 @@ function AnnotationPane() {
         }
         stage.add(annotation_layer);
     }
+
     this.open = function open() {
         this.tween = new Kinetic.Tween({
             node: annotation_layer,
             y: 200,
             opacity: 1,
             easing: Kinetic.Easings.ElasticEaseOut,
-            duration: 1.5
+            duration: .5
         });
         this.tween.play();
-
         menuState = "annotate";
 		this.isOpen = true;
         transVideo("rotate");
@@ -117,35 +116,36 @@ function AnnotationPane() {
             node: annotation_layer,
             y: 0,
             opacity: 0,
-            easing: Kinetic.Easings.Linear,
-            duration: .25
+            easing: Kinetic.Easings.StrongEaseOut,
+            duration: .5
         });
         tween.play();
-        this.selectorPosition = 0;
-        this.selectorMove(0);
-		//peek_pane.unPeek();
+        setTimeout(function () { this.selectorMove(0); }, 500);
 		this.isOpen = false;
         menuState = "root";
-        setTimeout(function() {transVideo("reset");}, 1000);
+        transVideo("reset");
     }
     this.selectorMove = function selectorMove(to) {
-        
+        var to;
+        if (to == "down") { to = (this.selectorPosition < this.menuItems.length - 1) ? this.selectorPosition + 1 : this.selectorPosition; }
+        else if (to == "up") { to = (this.selectorPosition > 0) ? this.selectorPosition - 1 : this.selectorPosition; }
+
         this.selector.tween = new Kinetic.Tween({
             node: this.selector,
             y: this.selectorOrigin + (this.padding * to),
             easing: Kinetic.Easings.ElasticEaseOut,
             duration: .5
-        });
-        this.selector.tween.play();
+        });        
         this.back.tween = new Kinetic.Tween({
             node: this.back,
             y: this.selectorOrigin + (this.padding * to),
             easing: Kinetic.Easings.ElasticEaseOut,
             duration: .5
         });
+
+        this.selector.tween.play();
         this.back.tween.play();
-
-
+        this.selectorPosition = to;
     }
 }
 
@@ -200,187 +200,4 @@ function AnnotationItemPane() {
 
 //Navigation Pane
 //______________________________________
-function NavigationPane() {
-    this.x = 0;
-    this.y = 0;
-    this.w = sw;
-    this.h = 300;
-    this.padding = 35;
-    this.back;
-    this.tween;
-    //this.selector;
-    //this.selectorPosition = 0; this.selectorOrigin = this.y - 70 - (this.padding * 3);
-    //this.menuItems = new Array();
-
-    this.init = function init() {
-        //Background gradient
-        var backgroundGradient = new Kinetic.Rect({
-            x: this.x,
-            y: this.y,
-            width: this.w,
-            height: this.h,
-            fillLinearGradientStartPoint: { x: sw / 2, y: 0 },
-            fillLinearGradientEndPoint: { x: sw / 2, y: 300 },
-            fillLinearGradientColorStops: [0, "rgba(0, 0, 0, 0)", 1, "rgba(0,0,0,255)"],
-        });
-        navigation_layer.add(backgroundGradient);
-
-        
-        stage.add(navigation_layer);
-    }
-    this.open = function open() {
-        this.tween = new Kinetic.Tween({
-            node: navigation_layer,
-            y: 520,
-            opacity: 1,
-            easing: Kinetic.Easings.ElasticEaseOut,
-            duration: 1.5
-        });
-        this.tween.play();
-        console.log("open nav");
-        //menuState = "navigate";
-        //transVideo("rotate");
-    }
-}
-
-//Peek Pane
-function PeekPane() {
-    this.listeningLabel = new Array();
-    this.followingLabel = new Array();
-
-    this.init = function init() {
-        //Listening list
-        this.listeningLabel.push(new Kinetic.Text({
-            x: 600,
-            y: 0,
-            text: "Listening",
-            fontSize: 22,
-            fontFamily: 'Roboto',
-            fill: 'white',
-            opacity: 0
-        }));
-        this.listeningLabel.push(new Kinetic.Image({
-            x: 565,
-            y: 0,
-            image: images.annotation,
-            width: 25,
-            height: 25,
-            offsetY: 0,
-            shadowColor: 'black',
-            shadowBlur: 10,
-            shadowOffset: { x: 0, y: 0 },
-            shadowOpacity: 0.5,
-            opacity:0
-        }));        
-        //Following list
-        this.followingLabel.push(new Kinetic.Text({
-            x: 600,
-            y: 720,
-            text: "Following",
-            fontSize: 22,
-            fontFamily: 'Roboto',
-            fill: 'white',
-            opacity: 0
-        }));      
-        this.followingLabel.push(new Kinetic.Image({
-            x: 565,
-            y: 720,
-            image: images.annotation,
-            width: 25,
-            height: 25,
-            offsetY: 0,
-            shadowColor: 'black',
-            shadowBlur: 10,
-            shadowOffset: { x: 0, y: 0 },
-            shadowOpacity: 0.5,
-            opacity: 0
-        }));
-        
-        this.followingLabel.forEach(function (entry) { peek_layer.add(entry); });
-        this.listeningLabel.forEach(function (entry) { peek_layer.add(entry); });
-        peek_layer.draw();
-        stage.add(peek_layer);
-    }
-    this.peek = function peek() {
-        this.listeningLabel.forEach(
-            function (entry) {
-                this.listeningTween = new Kinetic.Tween({
-                    node: entry,
-                    y: 50,
-                    opacity: 1,
-                    duration: .25
-                }); this.listeningTween.play();
-            }
-        );
-        this.followingLabel.forEach(
-            function (entry) {
-                this.followingTween = new Kinetic.Tween({
-                    node: entry,
-                    y: 640,
-                    opacity: 1,
-                    duration: .25
-                }); this.followingTween.play();
-            }
-        );
-        transVideo("peek");
-		menuState = "peek";
-    }
-	this.unPeek = function unPeek() {
-        this.listeningLabel.forEach(
-            function (entry) {
-                this.listeningTween = new Kinetic.Tween({
-                    node: entry,
-                    y: 0,
-                    opacity: 0,
-                    duration: .25
-                }); this.listeningTween.play();
-            }
-        );
-        this.followingLabel.forEach(
-            function (entry) {
-                this.followingTween = new Kinetic.Tween({
-                    node: entry,
-                    y: 720,
-                    opacity: 0,
-                    duration: .25
-                }); this.followingTween.play();
-            }
-        );
-        transVideo("return");
-		menuState = "root";
-    }
-    this.openListening = function openListening() {
-        this.listeningLabel.forEach(
-            function (entry) {
-                this.listeningTween = new Kinetic.Tween({
-                    node: entry,
-                    y: 35,                    
-                    duration: .25
-                }); this.listeningTween.play();
-            }
-        );
-        this.followingLabel.forEach(
-            function (entry) {
-                this.followingTween = new Kinetic.Tween({
-                    node: entry,
-                    y: 720,
-                    opacity: 0,
-                    duration: .25
-                }); this.followingTween.play();
-            }
-        );
-    }
-    this.openFollowing = function openListening() {
-        this.listeningLabel.forEach(
-            function (entry) {
-                this.listeningTween = new Kinetic.Tween({
-                    node: entry,
-                    y: 35,
-                    opacity: 1,
-                    duration: .25
-                }); this.listeningTween.play();
-            }
-        );
-    }
-    
-}
+//...
