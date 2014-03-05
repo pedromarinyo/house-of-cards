@@ -37,7 +37,9 @@
                 this.isListening = true;
             }
         }
-    } window.Friend = Friend;
+    } 
+
+    window.Friend = Friend;
 
     /*
     Friend Class
@@ -48,19 +50,20 @@
         icon, icon_x, icon_y,  
     )
     */
-    function Character(name, x, y, color) {
+    function Character(name) {
         this.name = name;
         this.x; this.y;
         this.isFollowing = false;
+
         this.portrait = new Kinetic.Circle({
-            x: x,
-            y: y,
-            radius: 50,
-            fill: color
+            width: 52,
+            height: 52,
+            strokewidth: 2,
+            stroke: "yellow"
+            
         });
 
-
-
     }
+      window.Character = Character;
 
 }(window));

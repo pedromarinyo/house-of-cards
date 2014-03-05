@@ -8,7 +8,10 @@ var sh = 720; //Screen height
 //States
 var menuState = "root";
 var recording = false;
+
 var friends = new Array(new Friend("Pedro Silva"), new Friend("My Friend"), new Friend("My Other Friend"));
+var characters = new Array(new Character("frank"),new Character("zoe"),new Character("peter"),new Character("claire"));
+
 //Gesture delay
 var delayGesture = false; 
 var grab = false;
@@ -28,6 +31,7 @@ function init() {
 	annotation_layer = new Kinetic.Layer({x:0, y: 0, opacity: 0});
 	annotationItem_layer = new Kinetic.Layer({ x: 0, y: 0 });
 	peek_layer = new Kinetic.Layer();
+    
     //Load assets
 	loadImages();
 
@@ -39,7 +43,9 @@ function init() {
 	//Timeline object
 	
 	//Navitation
-	
+    navigation_pane = new NavigationPane();
+	navigation_pane.init();
+
     //Annotation Pane
 	annotation_pane = new AnnotationPane();
 	annotation_pane.init();
@@ -71,13 +77,19 @@ function loadImages() {
     var imageSources = {
         annotation: "./assets/annotation.png",
         mic: "./assets/mic.png",
-        back: "./assets/back.png"
+        back: "./assets/back.png",
+        zoe: "./assets/zoe.png",
+        claire: "./assets/claire.png",
+        frank: "./assets/frank.png",
+        peter: "./assets/peter.png",
     };
 
     for (var src in imageSources) {
         images[src] = new Image();
         images[src].src = imageSources[src];
+
     }
+
 }
 
 //Input Functions
@@ -110,6 +122,9 @@ function down() {
             break;
         case "annotate":
             annotation_pane.selectorMove("down");
+            break;        
+        case "navigate":
+            navigation_pane.selectorMove("down");
             break;
     }
 }
@@ -117,9 +132,13 @@ function down() {
 function up() {
     switch (menuState) {
         case "root":
+            navigation_pane.open();
             break;
         case "annotate":
             annotation_pane.selectorMove("up");
+            break;
+        case "navigate":
+            navigation_pane.selectorMove("up");
             break;
     }
 }
@@ -130,6 +149,9 @@ function left() {
             break;
         case "annotate":
             annotation_pane.close();
+            break;       
+        case "navigate":
+            navigation_pane.close();
             break;
     }
 }

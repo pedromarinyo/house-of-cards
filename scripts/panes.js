@@ -201,3 +201,133 @@ function AnnotationItemPane() {
 //Navigation Pane
 //______________________________________
 //...
+function NavigationPane() {    
+    this.x = 0;
+    this.y = 1020;
+    this.w = sw;
+    this.h = 600;
+    this.padding = 35;
+    this.back; this.header; this.headerImage;
+    this.isOpen = false;
+ //   this.selector;
+   this.selectorPosition = 0; 
+    this.selectorOrigin =  this.y - 800 ;
+  
+    this.menuItems = new Array();
+    
+    
+    //Adding menu items
+    for (var i = 0; i < characters.length ; i++) { this.menuItems.push(characters[i]);}
+
+    this.init = function init() {
+
+        //Background gradient
+        var backgroundGradient = new Kinetic.Rect({
+            x: this.x,
+            y: this.y,
+            width: this.w,
+            height: this.h,
+            fillLinearGradientStartPoint: { x: sw / 2, y: 320 },
+            fillLinearGradientEndPoint: { x: sw / 2, y: 720 },
+            fillLinearGradientColorStops: [0, "rgba(0, 0, 0, 255)", 1, "rgba(0,0,0,0)"],
+        });
+        navigation_layer.add(backgroundGradient);
+
+        //Friends list       
+        
+        //Selector highlight
+        this.selector = new Kinetic.Circle({
+            x: this.x + 130,
+            y: this.selectorOrigin + 25,
+            stroke: "#00CCFF",
+            strokeWidth: 3,
+            width: 52,
+            height: 52
+        });
+        navigation_layer.add(this.selector);
+        
+
+        //Back icon
+        this.back = new Kinetic.Image({
+            x: this.x + this.padding *2,
+            y: this.selectorOrigin + 20,
+            image: images.back,
+            width: 25,
+            height: 25,
+            offsetY: -4,
+            offsetX: 12.5
+        });
+        navigation_layer.add(this.back);
+
+
+        for (var i = 0; i < this.menuItems.length; i++) {
+            //Character images
+            name = this.menuItems[i].name;
+
+         
+            var char_img = new Kinetic.Image({
+                image: images[name],
+                x: this.x + (this.padding * 3),
+                y: this.selectorOrigin + (60 * i),
+                width: 50,
+                height:50      
+            }); 
+            console.log(char_img);
+      
+            navigation_layer.add(char_img);
+            
+          //  this.menuItems[i].i = label; 
+        }
+        stage.add(navigation_layer);
+    }
+
+    this.open = function open() {
+        this.tween = new Kinetic.Tween({
+            node: navigation_layer,
+            y: 200,
+            opacity: 1,
+            easing: Kinetic.Easings.ElasticEaseOut,
+            duration: .5
+        });
+        this.tween.play();
+        menuState = "navigate";
+        this.isOpen = true;
+        transVideo("rotate");
+    }
+    this.close = function close() {
+        var tween = new Kinetic.Tween({
+            node: navigation_layer,
+            y: 0,
+            opacity: 0,
+            easing: Kinetic.Easings.StrongEaseOut,
+            duration: .5
+        });
+        tween.play();
+        setTimeout(function () { this.selectorMove(0); }, 500);
+        this.isOpen = false;
+        menuState = "root";
+        transVideo("reset");
+    }
+    this.selectorMove = function selectorMove(to) {
+        var to;
+        if (to == "down") { to = (this.selectorPosition < this.menuItems.length - 1) ? this.selectorPosition + 1 : this.selectorPosition; }
+        else if (to == "up") { to = (this.selectorPosition > 0) ? this.selectorPosition - 1 : this.selectorPosition; }
+
+        this.selector.tween = new Kinetic.Tween({
+            node: this.selector,
+            y: this.selectorOrigin + 25 + (60 * this.selectorPosition),
+            easing: Kinetic.Easings.ElasticEaseOut,
+            duration: .5
+        });        
+        this.back.tween = new Kinetic.Tween({
+            node: this.back,
+            y: this.selectorOrigin + 25 + (60 * this.selectorPosition),
+            easing: Kinetic.Easings.ElasticEaseOut,
+            duration: .5
+        });
+
+        this.selector.tween.play();
+        this.back.tween.play();
+        this.selectorPosition = to;
+    }
+}
