@@ -1,10 +1,10 @@
-//function grabSwitch(onOff) {
-//	if(onOff = "on") {
-//		grab = true;
-//	} else {
-//		grab = false;	
-//	}
-//}
+function grab() {
+	if(!isGrabbing) {
+		isGrabbing = true;
+	} else {
+		isGrabbing = false;	
+	}
+}
 //function annotation() {
 //	if(delayGesture) {return;}
 //	delayGesture = true;
@@ -57,35 +57,9 @@
 //			break;
 //	}
 //}
-//function calculateZ() {
-//	if(window.leapData.numHands > 0) {
-//	switch (menuState) {
-//		case "peek":
-//			if(window.leapData.hands[0].palmPosition[1] > 400) {
-//				annotation();
-//			}
-//			else if (window.leapData.hands[0].palmPosition[1] < 100) {
-//				console.log("Navigation");
-//			}
-//			break;
-//		case "annotate":		
-//			var t = 500/annotation_pane.menuItems.length; //threshold
-//			var z = window.leapData.hands[0].palmPosition[1];				
-
-//			for(var i =0; i < annotation_pane.menuItems.length; i++) {
-//				(function(i) {
-//					if (z < (t * (i + 1)) && z > (t * i)){
-//						var pos = annotation_pane.menuItems.length - (i + 1);
-//						if(annotation_pane.selectorPosition != pos) { 
-//							annotation_pane.selectorPosition = pos;
-//							annotation_pane.selectorMove(annotation_pane.selectorPosition); 
-//							console.log(annotation_pane.selectorPosition); }
-//					}
-//				})(i);
-//			}
-//			break;
-//	}
-//	} else {
-//		unPeek();
-//	}
-//}
+function calcZ() {
+	if(isGrabbing) {
+		var handZ = window.leapData.hands[0].palmPosition[1]; 
+		console.log(handZ);
+	}
+}

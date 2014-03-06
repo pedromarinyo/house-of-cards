@@ -14,7 +14,7 @@ var characters = new Array(new Character("frank"),new Character("zoe"),new Chara
 
 //Gesture delay
 var delayGesture = false; 
-var grab = false;
+var isGrabbing = false;
 
 //Global Functions
 //__________________________________
@@ -111,7 +111,10 @@ $(document).ready(function () {
 	});
 
     //Leap Motion
-	var events = {}
+	var events = {
+        "onGrab": grab,
+        "onFrame": calcZ
+    }
 	$().leap("setEvents",events);
 });
 
