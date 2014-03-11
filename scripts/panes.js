@@ -271,8 +271,7 @@ function NavigationPane() {
             height: 25
         });
         navigation_layer.add(this.headerImage);
-
-        //Friends list               
+              
         //Selector highlight
         this.selector = new Kinetic.Circle({
             x: this.x + (35 * 4),
@@ -311,8 +310,8 @@ function NavigationPane() {
                 offsetY: 35,
                 offsetX: 35,
                 shadowColor: 'black',
-                shadowBlur: 10,
-                shadowOffset: { x: 0, y: 0 },
+                shadowBlur: 20,
+                shadowOffset: { x: 3, y: 3 },
                 shadowOpacity: 0.5  
             });             
             

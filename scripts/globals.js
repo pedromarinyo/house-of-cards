@@ -11,22 +11,30 @@ var menuState = "root";
 var recording = false;
 
 var friends = new Array(new Friend("Pedro Silva"), new Friend("My Friend"), new Friend("My Other Friend"));
-var characters = new Array(new Character("frank"),new Character("zoe"),new Character("peter"),new Character("claire"));
+var characters = new Array(
+    new Character("frank"),
+    new Character("zoe"),
+    new Character("peter"),
+    new Character("claire"),
+    new Character("watershedBill"),
+    new Character("educationBill")
+);
+
 var scenes =  new Array(
     new Scene(new Array(characters[0]), 8), 
     new Scene(new Array(characters[2], characters[1]), 5),
     new Scene(new Array(characters[0]), 4), 
     new Scene(new Array(characters[3]), 5), 
     new Scene(new Array(characters[0]), 1),
-    new Scene(new Array(characters[1]), 5),
+    new Scene(new Array(characters[1]), 4),
     new Scene(new Array(characters[0]), 6),
     new Scene(new Array(characters[0]), 5),
-    new Scene(new Array(characters[0]), 7),
-    new Scene(new Array(characters[0]), 5),
-    new Scene(new Array(characters[0]), 5),
-    new Scene(new Array(characters[0]), 5),
-    new Scene(new Array(characters[0]), 5),
-    new Scene(new Array(characters[0]), 5)
+    new Scene(new Array(characters[0], characters[4]), 7),
+    new Scene(new Array(characters[0], characters[4]), 5),
+    new Scene(new Array(characters[0]), 3),
+    new Scene(new Array(characters[0]), 4),
+    new Scene(new Array(characters[0], characters[5]), 5),
+    new Scene(new Array(characters[0], characters[5]), 6)
 );
 
 //Gesture delay
@@ -97,6 +105,7 @@ function loadImages() {
         annotation: "./assets/annotation.png",
         mic: "./assets/mic.png",
         back: "./assets/back.png",
+        //Characters
         zoe: "./assets/zoe.png",
         claire: "./assets/claire.png",
         frank: "./assets/frank.png",
@@ -104,7 +113,12 @@ function loadImages() {
         zoeBW: "./assets/zoeBW.png",
         claireBW: "./assets/claireBW.png",
         frankBW: "./assets/frankBW.png",
-        peterBW: "./assets/peterBW.png"
+        peterBW: "./assets/peterBW.png",
+        //Events
+        educationBill: "./assets/educationBill.png",
+        educationBillBW: "./assets/educationBillBW.png",
+        watershedBill: "./assets/watershedBill.png",
+        watershedBillBW: "./assets/watershedBillBW.png"
     };
 
     for (var src in imageSources) {
