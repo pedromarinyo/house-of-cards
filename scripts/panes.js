@@ -41,7 +41,27 @@ function AnnotationPane() {
         });
         annotation_layer.add(backgroundGradient);
 
-        //Friends list       
+        //Header
+        this.header = new Kinetic.Text({
+            x: this.x + (this.padding * 2),
+            y: this.y + (this.padding * 4),
+            text: "Annotations",
+            fontSize: 24,
+            fontFamily: 'Roboto',
+            fill: "white"
+        });
+        annotation_layer.add(this.header);
+
+        //Header icon
+        this.headerImage = new Kinetic.Image({
+            x: this.x + this.padding,
+            y: this.y + (this.padding *4),
+            image: images.annotation,
+            width: 25,
+            height: 25
+        });
+        annotation_layer.add(this.headerImage);
+
         //Selector highlight
         this.selector = new Kinetic.Rect({
             x: this.x + this.padding * 2,
@@ -54,16 +74,16 @@ function AnnotationPane() {
         annotation_layer.add(this.selector);
 
         //Back icon
-        this.back = new Kinetic.Image({
-            x: this.x + this.padding * 2,
-            y: this.selectorOrigin,
-            image: images.back,
-            width: 25,
-            height: 25,
-            offsetY: -4,
-            offsetX: 12.5
-        });
-        annotation_layer.add(this.back);
+        // this.back = new Kinetic.Image({
+        //     x: this.x + this.padding * 2,
+        //     y: this.selectorOrigin,
+        //     image: images.back,
+        //     width: 25,
+        //     height: 25,
+        //     offsetY: -4,
+        //     offsetX: 12.5
+        // });
+        // annotation_layer.add(this.back);
 
         for (var i = 0; i < this.menuItems.length; i++) {
             //Text
@@ -120,7 +140,7 @@ function AnnotationPane() {
             duration: .5
         });
         tween.play();
-        setTimeout(function () { this.selectorMove(0); }, 500);
+        //setTimeout(function () { this.selectorMove(0); }, 500);
 		this.isOpen = false;
         menuState = "root";
         transVideo("reset");
@@ -136,15 +156,15 @@ function AnnotationPane() {
             easing: Kinetic.Easings.ElasticEaseOut,
             duration: .5
         });        
-        this.back.tween = new Kinetic.Tween({
-            node: this.back,
-            y: this.selectorOrigin + (this.padding * to),
-            easing: Kinetic.Easings.ElasticEaseOut,
-            duration: .5
-        });
+        // this.back.tween = new Kinetic.Tween({
+        //     node: this.back,
+        //     y: this.selectorOrigin + (this.padding * to),
+        //     easing: Kinetic.Easings.ElasticEaseOut,
+        //     duration: .5
+        // });
 
         this.selector.tween.play();
-        this.back.tween.play();
+        // this.back.tween.play();
         this.selectorPosition = to;
     }
 }
@@ -190,7 +210,7 @@ function AnnotationItemPane() {
         this.tween = new Kinetic.Tween({
             node: annotationItem_layer,
             y: -100,
-            easing: Kinetic.Easings.StrongEaseOut,
+            easing: Kinetic.Easings.ElasticEaseOut,
             duration: 1
         });
         this.tween.play();
@@ -200,19 +220,17 @@ function AnnotationItemPane() {
 
 //Navigation Pane
 //______________________________________
-//...
 function NavigationPane() {    
     this.x = 0;
-    this.y = 1020;
+    this.y = sh/2;
     this.w = sw;
-    this.h = 600;
-    this.padding = 35;
+    this.h = sh/2;
+    this.padding = 80;
     this.back; this.header; this.headerImage;
     this.isOpen = false;
- //   this.selector;
-   this.selectorPosition = 0; 
-    this.selectorOrigin =  this.y - 800 ;
-  
+    this.selector;
+    this.selectorPosition = 0; 
+    this.selectorOrigin =  this.y - 60 ;  
     this.menuItems = new Array();
     
     
@@ -224,67 +242,98 @@ function NavigationPane() {
         //Background gradient
         var backgroundGradient = new Kinetic.Rect({
             x: this.x,
-            y: this.y,
+            y: 200,
             width: this.w,
-            height: this.h,
-            fillLinearGradientStartPoint: { x: sw / 2, y: 320 },
-            fillLinearGradientEndPoint: { x: sw / 2, y: 720 },
-            fillLinearGradientColorStops: [0, "rgba(0, 0, 0, 255)", 1, "rgba(0,0,0,0)"],
+            height: this.h + 100,
+            fillLinearGradientStartPoint: { x: sw / 2, y: 0 },
+            fillLinearGradientEndPoint: { x: sw / 2, y: 310},
+            fillLinearGradientColorStops: [0, "rgba(0, 0, 0, 0)", 1, "rgba(0,0,0,255)"]
         });
         navigation_layer.add(backgroundGradient);
 
-        //Friends list       
-        
+        //Header
+        this.header = new Kinetic.Text({
+            x: this.x + (35 * 2),
+            y: this.y - 75,
+            text: "Navigation",
+            fontSize: 24,
+            fontFamily: 'Roboto',
+            fill: "white"
+        });
+        navigation_layer.add(this.header);
+
+        //Header icon
+        this.headerImage = new Kinetic.Image({
+            x: this.x + (35),
+            y: this.y - 75,
+            image: images.annotation,
+            width: 25,
+            height: 25
+        });
+        navigation_layer.add(this.headerImage);
+
+        //Friends list               
         //Selector highlight
         this.selector = new Kinetic.Circle({
-            x: this.x + 130,
-            y: this.selectorOrigin + 25,
-            stroke: "#00CCFF",
-            strokeWidth: 3,
-            width: 52,
-            height: 52
+            x: this.x + (35 * 4),
+            y: this.selectorOrigin - 50,
+            fill: "#fff",   
+            opacity: .7,     
+            radius: 40,
+            offsetY: 20,
+            offsetX: 0
         });
         navigation_layer.add(this.selector);
         
-
         //Back icon
-        this.back = new Kinetic.Image({
-            x: this.x + this.padding *2,
-            y: this.selectorOrigin + 20,
-            image: images.back,
-            width: 25,
-            height: 25,
-            offsetY: -4,
-            offsetX: 12.5
-        });
-        navigation_layer.add(this.back);
-
+        // this.back = new Kinetic.Image({
+        //     x: this.x + (35 * 4),
+        //     y: this.selectorOrigin - 50,
+        //     image: images.back,
+        //     width: 25,
+        //     height: 25,
+        //     offsetY: 30,
+        //     offsetX: 60
+        // });
+        //navigation_layer.add(this.back);
 
         for (var i = 0; i < this.menuItems.length; i++) {
-            //Character images
-            name = this.menuItems[i].name;
+            //Character images            
+            var name = this.menuItems[i].name;
+            if(i != 0) {name += "BW";}
 
-         
-            var char_img = new Kinetic.Image({
+            this.menuItems[i].portrait = new Kinetic.Image({
                 image: images[name],
-                x: this.x + (this.padding * 3),
-                y: this.selectorOrigin + (60 * i),
-                width: 50,
-                height:50      
-            }); 
-            console.log(char_img);
-      
-            navigation_layer.add(char_img);
+                x: this.x + (35 * 4),
+                y: this.y - 50 -(this.padding * (i+1)),
+                width: 70,
+                height: 70,
+                offsetY: 35,
+                offsetX: 35,
+                shadowColor: 'black',
+                shadowBlur: 10,
+                shadowOffset: { x: 0, y: 0 },
+                shadowOpacity: 0.5  
+            });             
             
-          //  this.menuItems[i].i = label; 
+            this.menuItems[i].followingIcon = new Kinetic.Circle({                
+                x: this.x + (35 * 4),
+                y: this.y - 50 - (this.padding * (i+1)),
+                radius: 20,
+                offsetY: 0,
+                offsetX: 0,
+                fill: "#0c7865"            
+            });             
+            navigation_layer.add(this.menuItems[i].followingIcon);
+            navigation_layer.add(this.menuItems[i].portrait);
         }
-        stage.add(navigation_layer);
+        stage.add(navigation_layer);  
     }
 
     this.open = function open() {
         this.tween = new Kinetic.Tween({
             node: navigation_layer,
-            y: 200,
+            y: sh/2,
             opacity: 1,
             easing: Kinetic.Easings.ElasticEaseOut,
             duration: .5
@@ -297,37 +346,123 @@ function NavigationPane() {
     this.close = function close() {
         var tween = new Kinetic.Tween({
             node: navigation_layer,
-            y: 0,
+            y: sh,
             opacity: 0,
             easing: Kinetic.Easings.StrongEaseOut,
             duration: .5
         });
         tween.play();
-        setTimeout(function () { this.selectorMove(0); }, 500);
+        //setTimeout(function () { this.selectorMove(0); }, 500);
         this.isOpen = false;
         menuState = "root";
         transVideo("reset");
     }
     this.selectorMove = function selectorMove(to) {
         var to;
-        if (to == "down") { to = (this.selectorPosition < this.menuItems.length - 1) ? this.selectorPosition + 1 : this.selectorPosition; }
-        else if (to == "up") { to = (this.selectorPosition > 0) ? this.selectorPosition - 1 : this.selectorPosition; }
+        if (to == "up") { to = (this.selectorPosition < this.menuItems.length - 1) ? this.selectorPosition + 1 : this.selectorPosition; }
+        else if (to == "down") { to = (this.selectorPosition > 0) ? this.selectorPosition - 1 : this.selectorPosition; }
 
         this.selector.tween = new Kinetic.Tween({
             node: this.selector,
-            y: this.selectorOrigin + 25 + (60 * this.selectorPosition),
+            y: this.selectorOrigin - 50 - (this.padding * to),
             easing: Kinetic.Easings.ElasticEaseOut,
             duration: .5
         });        
-        this.back.tween = new Kinetic.Tween({
-            node: this.back,
-            y: this.selectorOrigin + 25 + (60 * this.selectorPosition),
-            easing: Kinetic.Easings.ElasticEaseOut,
-            duration: .5
-        });
+        // this.back.tween = new Kinetic.Tween({
+        //     node: this.back,
+        //     y: this.selectorOrigin - 50 - (this.padding * to),
+        //     easing: Kinetic.Easings.ElasticEaseOut,
+        //     duration: .5
+        // });
 
+        this.menuItems[this.selectorPosition].portrait.setImage(images[this.menuItems[this.selectorPosition].name + "BW"]);
         this.selector.tween.play();
-        this.back.tween.play();
+        //this.back.tween.play();
         this.selectorPosition = to;
+        this.menuItems[to].portrait.setImage(images[this.menuItems[to].name]);
+        navigation_layer.draw();
+        timeline_pane.timelineItems.forEach(function(entry){
+            if(entry.characters.indexOf(navigation_pane.menuItems[to]) >=0) {entry.icon.setOpacity(.7);}
+            else {entry.icon.setOpacity(.3);}
+        });
+        timeline_layer.draw();
     }
+}
+
+//Timeline Pane
+//______________________________________
+function TimelinePane() {    
+    this.x = 250;
+    this.y = sh/2;
+    this.w = sw;
+    this.h = sh/2;
+    this.isOpen = false;
+    this.paddingTotal = 0;
+    this.padding = 0; 
+    this.timelineItems = new Array();    
+    this.selectedFilters = new Array();
+
+    this.init = function init() {
+        //Adding scenes to timeline
+        for (var i = 0; i < scenes.length; i++) { this.timelineItems.push(scenes[i]);}
+
+        for (var i = 0; i < this.timelineItems.length; i++) {            
+            
+            //Fill color
+            var character = characters.indexOf(this.timelineItems[i].characters[0]);
+            var fillColor = colors[character]; //Fill color   
+            this.padding = 5 * (scenes[i].nComments + 1);
+            this.paddingTotal += this.padding;
+
+
+            this.timelineItems[i].icon = new Kinetic.Circle({                
+                x: this.x + this.paddingTotal,
+                y: this.y - 60,
+                radius: this.padding,
+                fill: "white",
+                opacity: .3
+            });             
+            timeline_layer.add(this.timelineItems[i].icon);
+            this.paddingTotal += this.padding;           
+        }
+        stage.add(timeline_layer);  
+
+        this.filterOn = function filterOn(character) {
+            this.timelineItems.forEach(function(entry){
+                if(entry.characters.indexOf(character) >= 0) {
+                    entry.addToTimeline();
+                }
+                
+            });
+        }
+        this.filterOff = function filterOff() {
+            for(var i = 0; i < this.timelineItems.length; i++) {                            
+                var doesInclude = false;
+                this.timelineItems[i].characters.forEach(function(entry){
+                    if (entry.isFollowing) {doesInclude = true;}
+                });
+           
+                if(doesInclude) {continue;}
+                this.timelineItems[i].removeFromTimeline();                        
+            }
+        }
+    }    
+    this.open = function open() {
+        var tween = new Kinetic.Tween({
+            node: timeline_layer,
+            opacity: 1,
+            duration: .1
+        });
+        tween.play();
+        this.isOpen = true;
+    }   
+    this.close = function close() {
+        var tween = new Kinetic.Tween({
+            node: timeline_layer,
+            opacity: 0,
+            duration: .1
+        });
+        tween.play();
+        this.isOpen = false;
+    }     
 }
