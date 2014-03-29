@@ -73,18 +73,6 @@ function AnnotationPane() {
         });
         annotation_layer.add(this.selector);
 
-        //Back icon
-        // this.back = new Kinetic.Image({
-        //     x: this.x + this.padding * 2,
-        //     y: this.selectorOrigin,
-        //     image: images.back,
-        //     width: 25,
-        //     height: 25,
-        //     offsetY: -4,
-        //     offsetX: 12.5
-        // });
-        // annotation_layer.add(this.back);
-
         for (var i = 0; i < this.menuItems.length; i++) {
             //Text
             var textColor = (i != 0) ? "#aaa" : "white";
@@ -106,11 +94,7 @@ function AnnotationPane() {
                 image: images.mic,
                 width: 30,
                 height: 30,
-                offsetY: 15,
-                shadowColor: 'black',
-                shadowBlur: 10,
-                shadowOffset: { x: 0, y: 0 },
-                shadowOpacity: 0.5
+                offsetY: 15                
             });
             annotation_layer.add(listeningIcon);
             this.menuItems[i].listeningIcon = listeningIcon;
@@ -156,15 +140,8 @@ function AnnotationPane() {
             easing: Kinetic.Easings.ElasticEaseOut,
             duration: .5
         });        
-        // this.back.tween = new Kinetic.Tween({
-        //     node: this.back,
-        //     y: this.selectorOrigin + (this.padding * to),
-        //     easing: Kinetic.Easings.ElasticEaseOut,
-        //     duration: .5
-        // });
 
         this.selector.tween.play();
-        // this.back.tween.play();
         this.selectorPosition = to;
     }
 }
@@ -283,18 +260,6 @@ function NavigationPane() {
             offsetX: 0
         });
         navigation_layer.add(this.selector);
-        
-        //Back icon
-        // this.back = new Kinetic.Image({
-        //     x: this.x + (35 * 4),
-        //     y: this.selectorOrigin - 50,
-        //     image: images.back,
-        //     width: 25,
-        //     height: 25,
-        //     offsetY: 30,
-        //     offsetX: 60
-        // });
-        //navigation_layer.add(this.back);
 
         for (var i = 0; i < this.menuItems.length; i++) {
             //Character images            
@@ -350,8 +315,7 @@ function NavigationPane() {
             easing: Kinetic.Easings.StrongEaseOut,
             duration: .5
         });
-        tween.play();
-        //setTimeout(function () { this.selectorMove(0); }, 500);
+        tween.play();        
         this.isOpen = false;
         menuState = "root";
         transVideo("reset");
@@ -367,12 +331,6 @@ function NavigationPane() {
             easing: Kinetic.Easings.ElasticEaseOut,
             duration: .5
         });        
-        // this.back.tween = new Kinetic.Tween({
-        //     node: this.back,
-        //     y: this.selectorOrigin - 50 - (this.padding * to),
-        //     easing: Kinetic.Easings.ElasticEaseOut,
-        //     duration: .5
-        // });
 
         this.menuItems[this.selectorPosition].portrait.setImage(images[this.menuItems[this.selectorPosition].name + "BW"]);
         this.selector.tween.play();
@@ -409,10 +367,8 @@ function TimelinePane() {
             
             //Fill color
             var character = characters.indexOf(this.timelineItems[i].characters[0]);
-            var fillColor = colors[character]; //Fill color   
             this.padding = 5 * (scenes[i].nComments + 1);
             this.paddingTotal += this.padding;
-
 
             this.timelineItems[i].icon = new Kinetic.Circle({                
                 x: this.x + this.paddingTotal,
@@ -465,3 +421,75 @@ function TimelinePane() {
         this.isOpen = false;
     }     
 }
+
+//Gesture Pane
+//______________________________________
+function GesturePane() { 
+    this.isShowing = false;
+    this.prevX; this.prevY;
+    this.icon = new Kinetic.Circle({                
+        x: sw/2,
+        y: sh/2,
+        radius: 50,
+        fill: "grey",
+        opacity: .4
+    });   
+    this.sceneIcon = new Kinetic.Circle({                
+        x: sw/2,
+        y: sh/2,
+        radius: 70,
+        fill: "white",
+        opacity: .2
+    });  
+
+    this.init = function init() {
+        gesture_layer.add(this.sceneIcon);
+        stage.add(gesture_layer);
+    }
+
+    this.drawCircle = function drawCircle() {
+        this.prevX = leapData.hands[0].palmPosition[0];
+        this.prevY = leapData.hands[0].palmPosition[1];
+        gesture_layer.add(this.icon);
+        gesture_layer.draw();
+        this.isShowing = true;
+    }
+
+    this.clearCircle = function clearCircle() {
+        gesture_layer.removeChildren();
+        gesture_layer.draw();
+        this.icon.setX(sw/2);
+        this.icon.setY(sh/2);
+        this.isShowing = false;
+    }
+
+    this.update = function update() {
+        //Calculate palm's movement from origin
+        var currX = leapData.hands[0].palmPosition[0];
+        var currY = leapData.hands[0].palmPosition[1];
+        var deltaX = this.prevX - currX;
+        var deltaY = this.prevY - currY;
+
+        var newX = this.icon.attrs.x - (deltaX * 3);
+        var newY = this.icon.attrs.y + (deltaY * 2);
+        this.prevX = currX;
+        this.prevY = currY;
+
+        this.icon.setX(newX);
+        this.icon.setY(newY);
+
+        if(this.icon.attrs.x > sw - 100) {nextScene();}
+        if(this.icon.attrs.x < 100) {prevScene();}
+        if(this.icon.attrs.y < 100 && this.icon.attrs.x < 400) {down();}
+        if(this.icon.attrs.y < 100 && this.icon.attrs.x > 600) {toggleRecording();}
+
+        if(this.icon.attrs.y > sh - 100) {up();}
+        
+
+        gesture_layer.draw();
+    }
+}
+
+
+
+

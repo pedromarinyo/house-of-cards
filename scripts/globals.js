@@ -1,45 +1,25 @@
 //Global Variables
 //_________________________________
-var stage, navigation_layer, annotation_layer, annotationItem_layer;
+var stage, navigation_layer, annotation_layer, annotationItem_layer, gesture_layer;
 var annotation_pane, annotationItem_pane;
 var assets;
 var sw = 1280; //Screen width
 var sh = 720; //Screen height
-var colors = new Array("#DF8800", "#CFECE7", "#853D25", "#009F85");
+
 //States
 var menuState = "root";
 var recording = false;
 
-var friends = new Array(new Friend("Pedro Silva"), new Friend("My Friend"), new Friend("My Other Friend"));
-var characters = new Array(
-    new Character("frank"),
-    new Character("zoe"),
-    new Character("peter"),
-    new Character("claire"),
-    new Character("watershedBill"),
-    new Character("educationBill")
-);
-
-var scenes =  new Array(
-    new Scene(new Array(characters[0]), 8), 
-    new Scene(new Array(characters[2], characters[1]), 5),
-    new Scene(new Array(characters[0]), 4), 
-    new Scene(new Array(characters[3]), 5), 
-    new Scene(new Array(characters[0]), 1),
-    new Scene(new Array(characters[1]), 4),
-    new Scene(new Array(characters[0]), 6),
-    new Scene(new Array(characters[0]), 5),
-    new Scene(new Array(characters[0], characters[4]), 7),
-    new Scene(new Array(characters[0], characters[4]), 5),
-    new Scene(new Array(characters[0]), 3),
-    new Scene(new Array(characters[0]), 4),
-    new Scene(new Array(characters[0], characters[5]), 5),
-    new Scene(new Array(characters[0], characters[5]), 6)
-);
+//Content
+var friends, characters, scenes; 
 
 //Gesture delay
 var delayGesture = false; 
 var isGrabbing = false;
+
+//Video
+var video = document.getElementById('video');
+var currScene = 0;
 
 //Global Functions
 //__________________________________
@@ -56,17 +36,47 @@ function init() {
 	annotation_layer = new Kinetic.Layer({x:0, y: 0, opacity: 0});
 	annotationItem_layer = new Kinetic.Layer({ x: 1200, y: 0 });
 	timeline_layer = new Kinetic.Layer({ x:0, y: 360, opacity: 0});
+    gesture_layer = new Kinetic.Layer({ x:0, y: 0});
     
     //Load assets
 	loadImages();
 
     //Create...
+    //Character objects
+    characters = new Array(
+        new Character("frank"),
+        new Character("zoe"),
+        new Character("peter"),
+        new Character("claire"),
+        new Character("watershedBill"),
+        new Character("educationBill")
+    );
+
 	//Scene objects
-	
-	//Character objects
-	
-	//Timeline object
-	
+	scenes =  new Array(
+        new Scene(new Array(characters[0]), 8, 5), 
+        new Scene(new Array(characters[2], characters[1]), 5, 10),
+        new Scene(new Array(characters[0]), 4, 90), 
+        new Scene(new Array(characters[3]), 5, 120), 
+        new Scene(new Array(characters[0]), 1, 200),
+        new Scene(new Array(characters[1]), 4, 250),
+        new Scene(new Array(characters[0]), 6, 300),
+        new Scene(new Array(characters[0]), 5, 350),
+        new Scene(new Array(characters[0], characters[4]), 7, 400),
+        new Scene(new Array(characters[0], characters[4]), 5, 450),
+        new Scene(new Array(characters[0]), 3, 500),
+        new Scene(new Array(characters[0]), 4, 500),
+        new Scene(new Array(characters[0], characters[5]), 5, 500),
+        new Scene(new Array(characters[0], characters[5]), 6, 550)
+    );
+
+    //Friend objects
+	friends = new Array(
+        new Friend("Clutch Cargo"), 
+        new Friend("Johnny Quest"), 
+        new Friend("Capt. Picard")
+    );
+
 	//Navitation
     navigation_pane = new NavigationPane();
 	navigation_pane.init();
@@ -79,20 +89,23 @@ function init() {
     //Annotation Item Pane
 	annotationItem_pane = new AnnotationItemPane();
 	annotationItem_pane.init();
+    //Gesture Pane
+    gesture_pane = new GesturePane();
+    gesture_pane.init();
 }
 
 function transVideo(to) {
     if (to == "rotate") {
         $('#video').transition({
             perspective: '1280px',
-            //rotateY: '-10deg',
+            rotateY: '-10deg',
             scale: .85,
             opacity: .6
         });
     } else {
         $('#video').transition({
             perspective: '1280px',
-            //rotateY: '0deg',
+            rotateY: '0deg',
             scale: 1,
             opacity: 1
         });
@@ -124,7 +137,6 @@ function loadImages() {
     for (var src in imageSources) {
         images[src] = new Image();
         images[src].src = imageSources[src];
-
     }
 
 }
@@ -143,18 +155,21 @@ $(document).ready(function () {
         if (e.keyCode == 37) { left(); }
         //Right arrow 
         if (e.keyCode == 39) { right(); }
-        //Space 
-        if (e.keyCode == 32) { }
+        //Q
+        if (e.keyCode == 81) { prevScene();}
+        //W
+        if (e.keyCode == 87) { nextScene();}
 	});
 
     //Leap Motion
 	var events = {
-        //"onHandExit": onHandExit,
+        "onHandExit": onHandExit,
         "onFrame": onFrame
     }
 	$().leap("setEvents",events);
 });
 
+//Menu navigation
 function down() {
     if(delayGesture) {return;}
     delayGesture = true;
@@ -163,6 +178,7 @@ function down() {
         case "root":
             annotation_pane.open();
             timeline_pane.open(); 
+            gesture_pane.clearCircle();
             break;
         case "annotate":
             //annotation_pane.selectorMove("down");            
@@ -181,6 +197,7 @@ function up() {
         case "root":
             navigation_pane.open();
             timeline_pane.open();
+            gesture_pane.clearCircle();
             break;
         case "annotate":
             annotation_pane.selectorMove("up");
@@ -197,7 +214,6 @@ function left(bypass) {
     setTimeout(function(){delayGesture = false;}, 500);
     switch (menuState) {
         case "root":
-            console.log("Previous Scene");
             break;
         case "annotate":
             annotation_pane.close();
@@ -227,10 +243,31 @@ function right() {
     }
 }
 
+//Recording and video 
 function toggleRecording() {
     if(delayGesture) {return;}
     delayGesture = true;
     setTimeout(function(){delayGesture = false;}, 500);
     if(recording) {annotationItem_pane.close();}
     else {annotationItem_pane.open();}
+}
+
+function prevScene() {
+    if(delayGesture) {return;}
+    delayGesture = true;
+    setTimeout(function(){delayGesture = false;}, 500);
+    if(currScene > 0) {currScene--;}
+    else {return;}
+    video.currentTime = scenes[currScene].startTime;
+    console.log("prev scene");
+}
+
+function nextScene() {
+    if(delayGesture) {return;}
+    delayGesture = true;
+    setTimeout(function(){delayGesture = false;}, 500);
+    if(currScene < scenes.length) {currScene++;}
+    else {return;}
+    video.currentTime = scenes[currScene].startTime;
+    console.log("next scene");
 }

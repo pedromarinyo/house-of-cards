@@ -71,9 +71,10 @@
 
     //Scene Class
     //___________________
-    function Scene(characters, nComments) {
+    function Scene(characters, nComments, startTime) {
         this.name = name;
-        this.startTime; this.endTime;
+        this.startTime = startTime; 
+        this.endTime;
         this.characters = characters;
         this.fillColor;
         this.icon;
