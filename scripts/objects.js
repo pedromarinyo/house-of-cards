@@ -74,18 +74,19 @@
     function Scene(characters, nComments, startTime) {
         this.name = name;
         this.startTime = startTime; 
-        this.endTime;
         this.characters = characters;
-        this.fillColor;
-        this.icon;
-        this.topic;
-        this.nComments = nComments;
+        this.icon; 
+        this.x;
+        this.hasSeen = false;
+        this.nComments = nComments;        
 
-        this.addToTimeline = function addToTimeline() {            
+        this.addToTimeline = function addToTimeline() {                        
             this.tween = new Kinetic.Tween({
                 node: this.icon,
                 y: timeline_pane.y - 125,
+                x: this.x,
                 duration: .25,
+                opacity: .3, 
                 easing: Kinetic.Easings.EaseOut
             });
             this.tween.play();
@@ -94,7 +95,20 @@
             this.tween = new Kinetic.Tween({
                 node: this.icon,
                 y: timeline_pane.y - 60,
+                x: this.x,
                 duration: .25,
+                opacity: .3, 
+                easing: Kinetic.Easings.EaseOut
+            });
+            this.tween.play();
+        }
+        this.setCurrScene = function setCurrScene() {
+            this.tween = new Kinetic.Tween({
+                node: this.icon,
+                y: timeline_pane.y - 400,  
+                x: sw/2,             
+                duration: .25,    
+                opacity: 1,            
                 easing: Kinetic.Easings.EaseOut
             });
             this.tween.play();
@@ -102,5 +116,15 @@
 
     }
     window.Scene = Scene;
+    
+    //Annotation Class
+    //___________________
+    function Annotation(type, scene, startTime, author) {
+        this.type = type; //image, voice, scene
+        this.scene = scene; //from scene array
+        this.startTime = startTime;
+        this.author = author; //from friend array
+    }
+    window.Annotation = Annotation;
 
 }(window));

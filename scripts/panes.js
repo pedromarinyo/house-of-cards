@@ -338,10 +338,12 @@ function NavigationPane() {
         this.selectorPosition = to;
         this.menuItems[to].portrait.setImage(images[this.menuItems[to].name]);
         navigation_layer.draw();
-        timeline_pane.timelineItems.forEach(function(entry){
-            if(entry.characters.indexOf(navigation_pane.menuItems[to]) >=0) {entry.icon.setOpacity(.7);}
-            else {entry.icon.setOpacity(.3);}
-        });
+        
+        for(i = 0; i < timeline_pane.timelineItems.length; i++) {
+            if(i == currScene) {continue;}
+            if(timeline_pane.timelineItems[i].characters.indexOf(navigation_pane.menuItems[to]) >=0) {timeline_pane.timelineItems[i].icon.setOpacity(.7);}
+            else {timeline_pane.timelineItems[i].icon.setOpacity(.3);}
+        }
         timeline_layer.draw();
     }
 }
@@ -358,37 +360,51 @@ function TimelinePane() {
     this.padding = 0; 
     this.timelineItems = new Array();    
     this.selectedFilters = new Array();
+    this.progressWedge;
 
     this.init = function init() {
+        //Adding progress wedge to playdeck
+        this.progressWedge = new Kinetic.Wedge({
+            x: sw/2,
+            y: this.y - 400,  
+            radius: 50,
+            angle: 60,
+            fill: '#0c7865',
+            opacity: 1,
+            rotation: -90
+        });   
+        timeline_layer.add(this.progressWedge); 
         //Adding scenes to timeline
         for (var i = 0; i < scenes.length; i++) { this.timelineItems.push(scenes[i]);}
 
         for (var i = 0; i < this.timelineItems.length; i++) {            
             
-            //Fill color
             var character = characters.indexOf(this.timelineItems[i].characters[0]);
             this.padding = 5 * (scenes[i].nComments + 1);
-            this.paddingTotal += this.padding;
-
+            this.paddingTotal += this.padding;         
+      
             this.timelineItems[i].icon = new Kinetic.Circle({                
                 x: this.x + this.paddingTotal,
                 y: this.y - 60,
                 radius: this.padding,
                 fill: "white",
                 opacity: .3
-            });             
+            }); 
+            
+            this.timelineItems[i].x = this.x + this.paddingTotal;
             timeline_layer.add(this.timelineItems[i].icon);
-            this.paddingTotal += this.padding;           
+            this.paddingTotal += this.padding;
+            if(i == currScene) {this.timelineItems[i].setCurrScene();}
         }
         stage.add(timeline_layer);  
 
-        this.filterOn = function filterOn(character) {
-            this.timelineItems.forEach(function(entry){
-                if(entry.characters.indexOf(character) >= 0) {
-                    entry.addToTimeline();
+        this.filterOn = function filterOn(character) {            
+            for(var i = 0; i < this.timelineItems.length; i++) { 
+                if(this.timelineItems[i].characters.indexOf(character) >= 0) { 
+                    if(i == currScene) {continue;} //check if current scene
+                    this.timelineItems[i].addToTimeline();
                 }
-                
-            });
+            }
         }
         this.filterOff = function filterOff() {
             for(var i = 0; i < this.timelineItems.length; i++) {                            
@@ -398,9 +414,12 @@ function TimelinePane() {
                 });
            
                 if(doesInclude) {continue;}
+                if(i == currScene) {continue;}
                 this.timelineItems[i].removeFromTimeline();                        
             }
-        }
+        } 
+
+           
     }    
     this.open = function open() {
         var tween = new Kinetic.Tween({
@@ -426,41 +445,49 @@ function TimelinePane() {
 //______________________________________
 function GesturePane() { 
     this.isShowing = false;
+    this.isExpanding = false;
+    this.timer;
     this.prevX; this.prevY;
     this.icon = new Kinetic.Circle({                
         x: sw/2,
         y: sh/2,
         radius: 50,
-        fill: "grey",
-        opacity: .4
-    });   
-    this.sceneIcon = new Kinetic.Circle({                
-        x: sw/2,
-        y: sh/2,
-        radius: 70,
         fill: "white",
-        opacity: .2
-    });  
+        opacity: .5
+    });    
+    this.iconFill = new Kinetic.Circle({                
+        x: sw/2,
+        y: sh * .75,
+        radius: 0,
+        fill: "#0c7865",
+        opacity: 1
+    });
 
-    this.init = function init() {
-        gesture_layer.add(this.sceneIcon);
-        stage.add(gesture_layer);
+    this.init = function init() {               
+        stage.add(gesture_layer);    
     }
 
     this.drawCircle = function drawCircle() {
         this.prevX = leapData.hands[0].palmPosition[0];
         this.prevY = leapData.hands[0].palmPosition[1];
         gesture_layer.add(this.icon);
+        gesture_layer.add(this.iconFill); 
         gesture_layer.draw();
         this.isShowing = true;
     }
 
     this.clearCircle = function clearCircle() {
+        
+        this.icon.setX(sw/2);
+        this.icon.setY(sh/2);        
+        this.isShowing = false;
+        if(this.isExpanding) {
+            this.iconFill.expand.reset();
+            clearTimeout(this.timer);
+            this.isExpanding = false;
+        }
         gesture_layer.removeChildren();
         gesture_layer.draw();
-        this.icon.setX(sw/2);
-        this.icon.setY(sh/2);
-        this.isShowing = false;
     }
 
     this.update = function update() {
@@ -470,21 +497,43 @@ function GesturePane() {
         var deltaX = this.prevX - currX;
         var deltaY = this.prevY - currY;
 
-        var newX = this.icon.attrs.x - (deltaX * 3);
-        var newY = this.icon.attrs.y + (deltaY * 2);
+        var x = this.icon.attrs.x - (deltaX * 3);
+        var y = this.icon.attrs.y + (deltaY * 3);
         this.prevX = currX;
         this.prevY = currY;
 
-        this.icon.setX(newX);
-        this.icon.setY(newY);
+        this.icon.setX(x);
+        this.icon.setY(y);
+        this.iconFill.setY(y);
+        this.iconFill.setX(x);
 
-        if(this.icon.attrs.x > sw - 100) {nextScene();}
-        if(this.icon.attrs.x < 100) {prevScene();}
-        if(this.icon.attrs.y < 100 && this.icon.attrs.x < 400) {down();}
-        if(this.icon.attrs.y < 100 && this.icon.attrs.x > 600) {toggleRecording();}
+        // if(x > sw - 100) {nextScene();} // next scene
+        // if(x < 100) {prevScene();} // prev scene
+        if(y < 100 && x < 400) {down();} // annotation pane
+        if(y < 100 && x > 600) {toggleRecording();} // toggle recording
+        if(y > sh - 100 && x < sw/3) {up();} // navigation pane
+        if(y > sh - 100 && x > sw/3) {timeline_pane.open(); menuState = "timeline";} // timeline pane
 
-        if(this.icon.attrs.y > sh - 100) {up();}
-        
+        //scene grab
+        if(menuState == "timeline") {
+            if(x > sw/2 - 50 && x < sw/2 + 50 && y > sh/2.5 - 50 &&  y < sh/2.5 + 50) {
+                if(!this.isExpanding) {
+                    this.iconFill.expand = new Kinetic.Tween({
+                        node: this.iconFill,
+                        radius: 50,
+                        duration: 2
+                    });
+                    this.iconFill.expand.play();
+                    this.timer = setTimeout(function(){console.log("scene grab");}, 2000);
+                    this.isExpanding = true;                
+                }      
+            }
+            else if (this.isExpanding) {
+                this.iconFill.expand.reset();
+                clearTimeout(this.timer);
+                this.isExpanding = false;
+            }
+        }        
 
         gesture_layer.draw();
     }

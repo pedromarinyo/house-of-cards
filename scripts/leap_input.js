@@ -9,39 +9,35 @@ function onFrame() {
 	if(leapData.hands.length == 1) {
 		//Is grabbing?
 		if (leapData.hands[0].fingers.length == 0) {
-			if(!isGrabbing) { //if grabbing from open
-				isGrabbing = true;
-				
-			}
+			if(!isGrabbing) {isGrabbing = true;}
 		} 
-		else {if(isGrabbing){isGrabbing = false;}}
+		else {
+			if(isGrabbing){isGrabbing = false;}
+		}
 
-		
 		//Direction?
 		if(isGrabbing){
 
 			switch (menuState) {
 				case "root":
+				case "timeline":
 					if(!gesture_pane.isShowing) {gesture_pane.drawCircle();}
-					else {gesture_pane.update();}
-					
-					// if(leapData.hands[0].palmVelocity[1] > 1000) {up();}
-					// if(leapData.hands[0].palmVelocity[1] < -1000) {down();}	
+					else {gesture_pane.update();}	
 					break;
 				case "annotate":
 					if(annotation_pane.selector.fill != "#777") {annotation_pane.selector.setFill("#777"); annotation_layer.draw();}
-					if(leapData.hands[0].palmVelocity[0] > 1000) {right();}					
+					if(leapData.hands[0].palmVelocity[0] > 1300) {right();}					
 					break;
 				case "navigate":
-					if(leapData.hands[0].palmVelocity[0] > 1000) {right();}
-					
-					break;
+					if(leapData.hands[0].palmVelocity[0] > 1300) {right();}					
+					break;	
 			}
 		} else if(!isGrabbing) {
+			
 			switch (menuState) {
 				case "root":
-					if(gesture_pane.isShowing) {gesture_pane.clearCircle();}
-					
+					if(gesture_pane.isShowing) {gesture_pane.clearCircle();}	
+					if(recording) {if(leapData.hands[0].palmVelocity[1] > 1000) {toggleRecording();}}				
 					break;
 				case "annotate":
 					if(annotation_pane.selector.fill != "#333") {annotation_pane.selector.setFill("#333"); annotation_layer.draw();}
@@ -64,6 +60,10 @@ function onFrame() {
 							if(navigation_pane.selectorPosition != i) {navigation_pane.selectorMove(i);}
 						}
 					}
+					break;
+				case "timeline":
+					if(leapData.hands[0].palmVelocity[1] < -1000) {timeline_pane.close(); menuState = "root";}
+					if(gesture_pane.isShowing) {gesture_pane.clearCircle();}
 					break;
 			}
 		}

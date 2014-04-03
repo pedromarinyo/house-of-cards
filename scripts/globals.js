@@ -19,7 +19,7 @@ var isGrabbing = false;
 
 //Video
 var video = document.getElementById('video');
-var currScene = 0;
+var currScene = 3;
 
 //Global Functions
 //__________________________________
@@ -47,9 +47,7 @@ function init() {
         new Character("frank"),
         new Character("zoe"),
         new Character("peter"),
-        new Character("claire"),
-        new Character("watershedBill"),
-        new Character("educationBill")
+        new Character("claire")
     );
 
 	//Scene objects
@@ -62,12 +60,12 @@ function init() {
         new Scene(new Array(characters[1]), 4, 250),
         new Scene(new Array(characters[0]), 6, 300),
         new Scene(new Array(characters[0]), 5, 350),
-        new Scene(new Array(characters[0], characters[4]), 7, 400),
-        new Scene(new Array(characters[0], characters[4]), 5, 450),
+        new Scene(new Array(characters[0], characters[2]), 7, 400),
+        new Scene(new Array(characters[0], characters[2]), 5, 450),
         new Scene(new Array(characters[0]), 3, 500),
         new Scene(new Array(characters[0]), 4, 500),
-        new Scene(new Array(characters[0], characters[5]), 5, 500),
-        new Scene(new Array(characters[0], characters[5]), 6, 550)
+        new Scene(new Array(characters[0], characters[3]), 5, 500),
+        new Scene(new Array(characters[0], characters[3]), 6, 550)
     );
 
     //Friend objects
@@ -176,6 +174,7 @@ function down() {
     setTimeout(function(){delayGesture = false;}, 500);
     switch (menuState) {
         case "root":
+        case "timeline":
             annotation_pane.open();
             timeline_pane.open(); 
             gesture_pane.clearCircle();
@@ -195,6 +194,7 @@ function up() {
     setTimeout(function(){delayGesture = false;}, 500);
     switch (menuState) {
         case "root":
+        case "timeline":
             navigation_pane.open();
             timeline_pane.open();
             gesture_pane.clearCircle();
