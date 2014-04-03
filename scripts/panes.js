@@ -94,7 +94,8 @@ function AnnotationPane() {
                 image: images.mic,
                 width: 30,
                 height: 30,
-                offsetY: 15                
+                offsetY: 15,
+                visible:true                
             });
             annotation_layer.add(listeningIcon);
             this.menuItems[i].listeningIcon = listeningIcon;

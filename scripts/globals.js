@@ -19,6 +19,7 @@ var isGrabbing = false;
 
 //Video
 var video = document.getElementById('video');
+
 var currScene = 3;
 
 //Global Functions
@@ -30,6 +31,11 @@ function init() {
 		width: sw,
 		height: sh
 	});
+
+   //end of video summary
+    video.addEventListener('ended',summary,false);
+    
+   
 
 	//Creating layers
 	navigation_layer = new Kinetic.Layer({ x: 0, y: 720, opacity: 0 });
@@ -52,20 +58,18 @@ function init() {
 
 	//Scene objects
 	scenes =  new Array(
-        new Scene(new Array(characters[0]), 8, 5), 
-        new Scene(new Array(characters[2], characters[1]), 5, 10),
-        new Scene(new Array(characters[0]), 4, 90), 
-        new Scene(new Array(characters[3]), 5, 120), 
-        new Scene(new Array(characters[0]), 1, 200),
-        new Scene(new Array(characters[1]), 4, 250),
-        new Scene(new Array(characters[0]), 6, 300),
-        new Scene(new Array(characters[0]), 5, 350),
-        new Scene(new Array(characters[0], characters[2]), 7, 400),
-        new Scene(new Array(characters[0], characters[2]), 5, 450),
-        new Scene(new Array(characters[0]), 3, 500),
-        new Scene(new Array(characters[0]), 4, 500),
-        new Scene(new Array(characters[0], characters[3]), 5, 500),
-        new Scene(new Array(characters[0], characters[3]), 6, 550)
+        new Scene(new Array(characters[0]), 5,8), 
+        new Scene(new Array(characters[2], characters[1]), 10,30),
+        new Scene(new Array(characters[0]), 90,110), 
+        new Scene(new Array(characters[3]),  120,149), 
+        new Scene(new Array(characters[0]), 200,220),
+        new Scene(new Array(characters[1]), 250,270),
+        new Scene(new Array(characters[0]), 300,320),
+        new Scene(new Array(characters[0]), 350,370),
+        new Scene(new Array(characters[0], characters[2]), 400,420),
+        new Scene(new Array(characters[0], characters[2]),  450,470),
+        new Scene(new Array(characters[0], characters[3]),500,520),
+        new Scene(new Array(characters[0], characters[3]), 550,570)
     );
 
     //Friend objects
@@ -139,6 +143,28 @@ function loadImages() {
 
 }
 
+
+// What you want to do after the video ended
+ function summary() {
+       console.log("video has ended");
+
+       //open the annotation pane
+       $('#stage').show();
+
+            annotation_pane.open();
+            annotation_pane.header.setText("Summary");
+            console.log(annotation_pane);
+            for(var i=1;i< annotation_pane.menuItems.length;i++)
+            {
+                  annotation_pane.menuItems[i].listeningIcon.hide();
+            }
+          
+            annotation_layer.draw();
+
+      menuState = "summary";
+       
+    }
+
 //Input Functions
 //__________________________________
 $(document).ready(function () {
@@ -180,11 +206,13 @@ function down() {
             gesture_pane.clearCircle();
             break;
         case "annotate":
-            //annotation_pane.selectorMove("down");            
+            annotation_pane.selectorMove("down");            
             break;        
         case "navigate":
             navigation_pane.selectorMove("down");
             break;
+
+
     }
 }
 
@@ -240,8 +268,14 @@ function right() {
         case "navigate":
             navigation_pane.menuItems[navigation_pane.selectorPosition].toggle();            
             break;
+        case "summary":
+           annotation_pane.menuItems[annotation_pane.selectorPosition].toggleSummary();
     }
+
 }
+
+    
+ 
 
 //Recording and video 
 function toggleRecording() {

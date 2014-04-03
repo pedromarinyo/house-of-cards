@@ -71,14 +71,14 @@
 
     //Scene Class
     //___________________
-    function Scene(characters, nComments, startTime) {
+    function Scene(characters,startTime,endTime) {
         this.name = name;
         this.startTime = startTime; 
         this.characters = characters;
+        this.endTime = endTime;
         this.icon; 
         this.x;
-        this.hasSeen = false;
-        this.nComments = nComments;        
+        this.hasSeen = false;       
 
         this.addToTimeline = function addToTimeline() {                        
             this.tween = new Kinetic.Tween({
