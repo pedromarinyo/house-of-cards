@@ -8,7 +8,7 @@ function onFrame() {
 	
 	if(leapData.hands.length == 1) {
 		//Is grabbing?
-		if (leapData.hands[0].fingers.length == 0) {
+		if (leapData.hands[0].fingers.length < 3) {
 			if(!isGrabbing) {isGrabbing = true;}
 		} 
 		else {
@@ -21,23 +21,26 @@ function onFrame() {
 			switch (menuState) {
 				case "root":
 				case "timeline":
-					if(!gesture_pane.isShowing) {gesture_pane.drawCircle();}
+					//Show cursor
+					if(!gesture_pane.isShowing) {gesture_pane.drawCircle();} 
 					else {gesture_pane.update();}	
 					break;
 				case "annotate":
-					if(annotation_pane.selector.fill != "#777") {annotation_pane.selector.setFill("#777"); annotation_layer.draw();}
-					if(leapData.hands[0].palmVelocity[0] > 1300) {right();}					
+					//Select from annotation pane
+					if(annotation_pane.selector.fill != "#777") {annotation_pane.selector.setFill("#777"); annotation_layer.draw();} 
+					if(leapData.hands[0].palmVelocity[0] > 1300) {right();}	
 					break;
 				case "navigate":
-					if(leapData.hands[0].palmVelocity[0] > 1300) {right();}					
+					//Select from navigation pane
+					if(leapData.hands[0].palmVelocity[0] > 1300) {right();}				
 					break;	
 			}
 		} else if(!isGrabbing) {
 			
 			switch (menuState) {
 				case "root":
+					//Remove cursor
 					if(gesture_pane.isShowing) {gesture_pane.clearCircle();}	
-					if(recording) {if(leapData.hands[0].palmVelocity[1] > 1000) {toggleRecording();}}				
 					break;
 				case "annotate":
 					if(annotation_pane.selector.fill != "#333") {annotation_pane.selector.setFill("#333"); annotation_layer.draw();}
@@ -52,6 +55,7 @@ function onFrame() {
 					}
 					break;
 				case "navigate":
+					//Move selector according to hand height
 					var selWindow = 500 / navigation_pane.menuItems.length;
 					var handHeight = leapData.hands[0].palmPosition[1];
 					if(leapData.hands[0].palmVelocity[1] < -1000) {left(false);}

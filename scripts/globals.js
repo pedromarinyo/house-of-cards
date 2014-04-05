@@ -52,20 +52,19 @@ function init() {
 
 	//Scene objects
 	scenes =  new Array(
-        new Scene(new Array(characters[0]), 8, 5), 
-        new Scene(new Array(characters[2], characters[1]), 5, 10),
-        new Scene(new Array(characters[0]), 4, 90), 
-        new Scene(new Array(characters[3]), 5, 120), 
-        new Scene(new Array(characters[0]), 1, 200),
-        new Scene(new Array(characters[1]), 4, 250),
-        new Scene(new Array(characters[0]), 6, 300),
-        new Scene(new Array(characters[0]), 5, 350),
-        new Scene(new Array(characters[0], characters[2]), 7, 400),
-        new Scene(new Array(characters[0], characters[2]), 5, 450),
-        new Scene(new Array(characters[0]), 3, 500),
-        new Scene(new Array(characters[0]), 4, 500),
-        new Scene(new Array(characters[0], characters[3]), 5, 500),
-        new Scene(new Array(characters[0], characters[3]), 6, 550)
+        new Scene(new Array(characters[0]), 5, 9), 
+        new Scene(new Array(characters[2], characters[1]), 10, 15),
+        new Scene(new Array(characters[0]), 90, 100), 
+        new Scene(new Array(characters[1]), 120, 130), 
+        new Scene(new Array(characters[0]), 200, 210),
+        new Scene(new Array(characters[1]), 250, 260),
+        new Scene(new Array(characters[0]), 300, 310),
+        new Scene(new Array(characters[3]), 350, 360),
+        new Scene(new Array(characters[0], characters[2]), 400, 410),
+        new Scene(new Array(characters[0], characters[2]), 450, 460),
+        new Scene(new Array(characters[1]), 500, 510),
+        new Scene(new Array(characters[2]), 600, 610),
+        new Scene(new Array(characters[3]), 700, 710)
     );
 
     //Friend objects
@@ -116,6 +115,7 @@ function loadImages() {
         annotation: "./assets/annotation.png",
         mic: "./assets/mic.png",
         back: "./assets/back.png",
+        watched: "./assets/watched.png",
         //Characters
         zoe: "./assets/zoe.png",
         claire: "./assets/claire.png",
@@ -124,12 +124,7 @@ function loadImages() {
         zoeBW: "./assets/zoeBW.png",
         claireBW: "./assets/claireBW.png",
         frankBW: "./assets/frankBW.png",
-        peterBW: "./assets/peterBW.png",
-        //Events
-        educationBill: "./assets/educationBill.png",
-        educationBillBW: "./assets/educationBillBW.png",
-        watershedBill: "./assets/watershedBill.png",
-        watershedBillBW: "./assets/watershedBillBW.png"
+        peterBW: "./assets/peterBW.png"
     };
 
     for (var src in imageSources) {

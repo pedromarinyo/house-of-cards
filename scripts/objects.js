@@ -71,19 +71,19 @@
 
     //Scene Class
     //___________________
-    function Scene(characters, nComments, startTime) {
+    function Scene(characters, startTime, endTime) {
         this.name = name;
         this.startTime = startTime; 
+        this.endTime = endTime;
         this.characters = characters;
         this.icon; 
         this.x;
         this.hasSeen = false;
-        this.nComments = nComments;        
 
         this.addToTimeline = function addToTimeline() {                        
             this.tween = new Kinetic.Tween({
                 node: this.icon,
-                y: timeline_pane.y - 125,
+                y: timeline_pane.y - 150,
                 x: this.x,
                 duration: .25,
                 opacity: .3, 
@@ -94,7 +94,7 @@
         this.removeFromTimeline = function removeFromTimeline() {
             this.tween = new Kinetic.Tween({
                 node: this.icon,
-                y: timeline_pane.y - 60,
+                y: timeline_pane.y - 100,
                 x: this.x,
                 duration: .25,
                 opacity: .3, 
@@ -105,7 +105,6 @@
         this.setCurrScene = function setCurrScene() {
             this.tween = new Kinetic.Tween({
                 node: this.icon,
-                y: timeline_pane.y - 400,  
                 x: sw/2,             
                 duration: .25,    
                 opacity: 1,            
@@ -119,10 +118,11 @@
     
     //Annotation Class
     //___________________
-    function Annotation(type, scene, startTime, author) {
+    function Annotation(type, scene, startTime, endTime, author) {
         this.type = type; //image, voice, scene
         this.scene = scene; //from scene array
         this.startTime = startTime;
+        this.endTime = endTime;
         this.author = author; //from friend array
     }
     window.Annotation = Annotation;
