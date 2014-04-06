@@ -2,13 +2,12 @@
 //_________________________________
 var stage, navigation_layer, annotation_layer, annotationItem_layer, gesture_layer;
 var annotation_pane, annotationItem_pane;
-var assets;
+var user = 0;
 var sw = 1280; //Screen width
 var sh = 720; //Screen height
 
 //States
 var menuState = "root";
-var recording = false;
 
 //Content
 var friends, characters, scenes; 
@@ -19,8 +18,12 @@ var isGrabbing = false;
 
 //Video
 var video = document.getElementById('video');
-
 var currScene = 3;
+
+//Audio annotations
+var recorder;
+var recording = false;
+var audioFileName;
 
 //Global Functions
 //__________________________________
@@ -30,12 +33,7 @@ function init() {
 		container: "stage",
 		width: sw,
 		height: sh
-	});
-
-   //end of video summary
-    video.addEventListener('ended',summary,false);
-    
-   
+	});   
 
 	//Creating layers
 	navigation_layer = new Kinetic.Layer({ x: 0, y: 720, opacity: 0 });
@@ -58,7 +56,6 @@ function init() {
 
 	//Scene objects
 	scenes =  new Array(
-<<<<<<< HEAD
         new Scene(new Array(characters[0]), 5, 9), 
         new Scene(new Array(characters[2], characters[1]), 10, 15),
         new Scene(new Array(characters[0]), 90, 100), 
@@ -72,20 +69,6 @@ function init() {
         new Scene(new Array(characters[1]), 500, 510),
         new Scene(new Array(characters[2]), 600, 610),
         new Scene(new Array(characters[3]), 700, 710)
-=======
-        new Scene(new Array(characters[0]), 5,8), 
-        new Scene(new Array(characters[2], characters[1]), 10,30),
-        new Scene(new Array(characters[0]), 90,110), 
-        new Scene(new Array(characters[3]),  120,149), 
-        new Scene(new Array(characters[0]), 200,220),
-        new Scene(new Array(characters[1]), 250,270),
-        new Scene(new Array(characters[0]), 300,320),
-        new Scene(new Array(characters[0]), 350,370),
-        new Scene(new Array(characters[0], characters[2]), 400,420),
-        new Scene(new Array(characters[0], characters[2]),  450,470),
-        new Scene(new Array(characters[0], characters[3]),500,520),
-        new Scene(new Array(characters[0], characters[3]), 550,570)
->>>>>>> FETCH_HEAD
     );
 
     //Friend objects
@@ -110,6 +93,10 @@ function init() {
     //Gesture Pane
     gesture_pane = new GesturePane();
     gesture_pane.init();
+    //Video
+    video.addEventListener('ended', summary, false); //Trigger for annotation summary
+    //Audio
+
 }
 
 function transVideo(to) {
@@ -153,29 +140,7 @@ function loadImages() {
         images[src].src = imageSources[src];
     }
 
-}
-
-
-// What you want to do after the video ended
- function summary() {
-       console.log("video has ended");
-
-       //open the annotation pane
-       $('#stage').show();
-
-            annotation_pane.open();
-            annotation_pane.header.setText("Summary");
-            console.log(annotation_pane);
-            for(var i=1;i< annotation_pane.menuItems.length;i++)
-            {
-                  annotation_pane.menuItems[i].listeningIcon.hide();
-            }
-          
-            annotation_layer.draw();
-
-      menuState = "summary";
-       
-    }
+}    
 
 //Input Functions
 //__________________________________
@@ -195,6 +160,10 @@ $(document).ready(function () {
         if (e.keyCode == 81) { prevScene();}
         //W
         if (e.keyCode == 87) { nextScene();}
+        //I
+        if (e.keyCode == 73) { makeImageAnnotation();}
+        //R
+        if (e.keyCode == 82) { toggleRecording();}
 	});
 
     //Leap Motion
@@ -223,8 +192,6 @@ function down() {
         case "navigate":
             navigation_pane.selectorMove("down");
             break;
-
-
     }
 }
 
@@ -270,6 +237,7 @@ function right() {
     if(delayGesture) {return;}
     delayGesture = true;
     setTimeout(function(){delayGesture = false;}, 500);
+
     switch (menuState) {
         case "root":            
             console.log("Next Scene");
@@ -281,39 +249,63 @@ function right() {
             navigation_pane.menuItems[navigation_pane.selectorPosition].toggle();            
             break;
         case "summary":
-           annotation_pane.menuItems[annotation_pane.selectorPosition].toggleSummary();
+           // annotation_pane.menuItems[annotation_pane.selectorPosition].toggleSummary();
     }
 
 }
 
     
- 
+//Recording and video...
+//Make audio annotation
+// function toggleRecording() {
+//     if(delayGesture) {return;}
+//     delayGesture = true;
+//     setTimeout(function(){delayGesture = false;}, 500);
 
-//Recording and video 
-function toggleRecording() {
-    if(delayGesture) {return;}
-    delayGesture = true;
-    setTimeout(function(){delayGesture = false;}, 500);
-    if(recording) {annotationItem_pane.close();}
-    else {annotationItem_pane.open();}
+//     if(recording) {annotationItem_pane.close();}
+//     else {annotationItem_pane.open();}
+// }
+
+//Make image annotation
+function makeImageAnnotation() {
+    console.log("Image annotation");
+
+
 }
 
+//Next scene
 function prevScene() {
     if(delayGesture) {return;}
     delayGesture = true;
     setTimeout(function(){delayGesture = false;}, 500);
+
     if(currScene > 0) {currScene--;}
     else {return;}
     video.currentTime = scenes[currScene].startTime;
     console.log("prev scene");
 }
 
+//Previous scene
 function nextScene() {
     if(delayGesture) {return;}
     delayGesture = true;
     setTimeout(function(){delayGesture = false;}, 500);
+
     if(currScene < scenes.length) {currScene++;}
     else {return;}
     video.currentTime = scenes[currScene].startTime;
     console.log("next scene");
+}
+
+//Summary, to be called upon video's end
+function summary() {
+    annotation_pane.open();
+    annotation_pane.header.setText("Summary");
+
+    for(var i=1;i< annotation_pane.menuItems.length;i++) {
+        annotation_pane.menuItems[i].listeningIcon.hide();
+    }
+
+    annotation_layer.draw();
+    menuState = "summary";
 }

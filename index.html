@@ -5,7 +5,7 @@
     <link type="text/css" rel="stylesheet" href="./styles/style.css" />
     <link type="text/css" rel="stylesheet" href="./styles/reset.css" />
     <!--Libraries-->
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
     <script src="http://js.leapmotion.com/0.2.0/leap.min.js"></script>
 	<script src="http://jqueryleapmotion.s3.amazonaws.com/jquery.leapmotion.min.js"></script>
     <script src="./scripts/libraries/facedetection/ccv.js"></script> 
@@ -13,28 +13,24 @@
     <script src="./scripts/libraries/jquery.facedetection.js"></script> 
     <script src="./scripts/libraries/jquery.transit.min.js"></script>
     <script src="./scripts/libraries/leap.jquery.js"></script>   
+    <script src="./scripts/libraries/recordRTC.js"></script>  
     <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v5.0.1.min.js"></script>
     <!--Custom Scripts-->
     <script type="text/javascript" src="./scripts/objects.js" defer="defer"></script>
     <script type="text/javascript" src="./scripts/globals.js" defer="defer"></script>
     <script type="text/javascript" src="./scripts/panes.js" defer="defer"></script>
     <script type="text/javascript" src="./scripts/leap_input.js" defer="defer"></script>
+    <script type="text/javascript" src="./scripts/audioAnnotation.js" defer="defer"></script>
 </head>
 
 
 <body onLoad="init()">
 	<div id="wrapper">
-<<<<<<< HEAD
-    	<video id="video">
+        <img src="assets/hoc.png" id="video">
+    	<!-- <video id="video">
             <source src="./assets/hoc.mp4" type="video/mp4">   
-        </video>
+        </video> -->
         <div id="stage"></div>    
-=======
-    	 <video id="video" controls autoplay>
-            <source src="./assets/hoc.mp4" type="video/mp4">   
-        </video> 
-        <div id="stage" style="display:none"></div>    
->>>>>>> FETCH_HEAD
     </div>
 </body>
 

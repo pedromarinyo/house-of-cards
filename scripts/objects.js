@@ -71,23 +71,15 @@
 
     //Scene Class
     //___________________
-<<<<<<< HEAD
-    function Scene(characters, startTime, endTime) {
-=======
     function Scene(characters,startTime,endTime) {
->>>>>>> FETCH_HEAD
+
         this.name = name;
         this.startTime = startTime; 
         this.endTime = endTime;
         this.characters = characters;
-        this.endTime = endTime;
         this.icon; 
         this.x;
-<<<<<<< HEAD
         this.hasSeen = false;
-=======
-        this.hasSeen = false;       
->>>>>>> FETCH_HEAD
 
         this.addToTimeline = function addToTimeline() {                        
             this.tween = new Kinetic.Tween({

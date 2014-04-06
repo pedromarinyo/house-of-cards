@@ -13,7 +13,7 @@ function AnnotationPane() {
     this.menuItems = new Array();
     
     //Toggle all menu item
-    this.toggleAll = new Object({ name: "Toggle All", toggleOn: false});
+    this.toggleAll = new Object({ name: "All", toggleOn: false});
     this.toggleAll.toggle = function toggle() {
         if (this.toggleOn) {
             friends.forEach(function (entry) { if (!entry.isListening) { entry.toggle(); } });
@@ -75,7 +75,7 @@ function AnnotationPane() {
 
         for (var i = 0; i < this.menuItems.length; i++) {
             //Text
-            var textColor = (i != 0) ? "#aaa" : "white";
+            var textColor = (i != 0) ? "white" : "white";
             var label = new Kinetic.Text({
                 x: this.x + (this.padding * 3),
                 y: this.y + 80 + (this.padding * (i + 3)),
