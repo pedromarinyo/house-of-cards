@@ -99,6 +99,10 @@ function AnnotationPane() {
             });
             annotation_layer.add(listeningIcon);
             this.menuItems[i].listeningIcon = listeningIcon;
+
+            //Activating annotations
+            this.menuItems[i].toggle();
+
         }
         stage.add(annotation_layer);
     }
@@ -112,7 +116,7 @@ function AnnotationPane() {
             duration: .5
         });
         this.tween.play();
-        menuState = "annotate";
+        
 		this.isOpen = true;
         transVideo("rotate");
     }
@@ -124,10 +128,9 @@ function AnnotationPane() {
             easing: Kinetic.Easings.StrongEaseOut,
             duration: .5
         });
-        tween.play();
-        //setTimeout(function () { this.selectorMove(0); }, 500);
+        tween.play();        
 		this.isOpen = false;
-        menuState = "root";
+        
         transVideo("reset");
     }
     this.selectorMove = function selectorMove(to) {
@@ -182,7 +185,7 @@ function AnnotationItemPane() {
             duration: 1
         });
         this.tween.play();
-        recording = true;;
+        recording = true;
     }
     this.close = function close() {
         this.tween = new Kinetic.Tween({
@@ -304,10 +307,11 @@ function NavigationPane() {
             duration: .5
         });
         this.tween.play();
-        menuState = "navigate";
+        
         this.isOpen = true;
         transVideo("rotate");
     }
+
     this.close = function close() {
         var tween = new Kinetic.Tween({
             node: navigation_layer,
@@ -317,10 +321,10 @@ function NavigationPane() {
             duration: .5
         });
         tween.play();        
-        this.isOpen = false;
-        menuState = "root";
+        this.isOpen = false;        
         transVideo("reset");
     }
+
     this.selectorMove = function selectorMove(to) {
         var to;
         if (to == "up") { to = (this.selectorPosition < this.menuItems.length - 1) ? this.selectorPosition + 1 : this.selectorPosition; }
@@ -335,16 +339,16 @@ function NavigationPane() {
 
         this.menuItems[this.selectorPosition].portrait.setImage(images[this.menuItems[this.selectorPosition].name + "BW"]);
         this.selector.tween.play();
-        //this.back.tween.play();
         this.selectorPosition = to;
         this.menuItems[to].portrait.setImage(images[this.menuItems[to].name]);
         navigation_layer.draw();
         
-        for(i = 0; i < timeline_pane.timelineItems.length; i++) {
-            if(i == currScene) {continue;}
-            if(timeline_pane.timelineItems[i].characters.indexOf(navigation_pane.menuItems[to]) >=0) {timeline_pane.timelineItems[i].icon.setOpacity(.7);}
-            else {timeline_pane.timelineItems[i].icon.setOpacity(.3);}
+        for(i = 0; i < timeline_pane.timelineItems.length; i++) {            
+            //Highlighting selected character's scenes
+            if(timeline_pane.timelineItems[i].characters.indexOf(navigation_pane.menuItems[to]) >=0) {timeline_pane.timelineItems[i].icon.setOpacity(1);}
+            else {timeline_pane.timelineItems[i].icon.setOpacity(.5);}
         }
+
         timeline_layer.draw();
     }
 }
@@ -375,7 +379,7 @@ function TimelinePane() {
                 width: 60,
                 height: 70,
                 fill: "white",
-                opacity: .3,
+                opacity: .5,
                 cornerRadius: 10
             }); 
             
@@ -384,14 +388,18 @@ function TimelinePane() {
         }
         stage.add(timeline_layer);  
 
-        this.filterOn = function filterOn(character) {            
+        this.filterOn = function filterOn(character) { 
             for(var i = 0; i < this.timelineItems.length; i++) { 
-                if(this.timelineItems[i].characters.indexOf(character) >= 0) { 
-                    if(i == currScene) {continue;} //check if current scene
+                if(i == currScene) {continue;}
+                if(this.timelineItems[i].characters.indexOf(character) >= 0) {                     
                     this.timelineItems[i].addToTimeline();
                 }
             }
+
+            //Check if anything was playing beforehand
+            if($('#message').is(':visible')) {nextScene(true); $('#message').slideUp(); }
         }
+
         this.filterOff = function filterOff() {
             for(var i = 0; i < this.timelineItems.length; i++) {                            
                 var doesInclude = false;
@@ -399,9 +407,11 @@ function TimelinePane() {
                     if (entry.isFollowing) {doesInclude = true;}
                 });
            
-                if(doesInclude) {continue;}
-                if(i == currScene) {continue;}
-                this.timelineItems[i].removeFromTimeline();                        
+                if(doesInclude) {continue;} 
+                this.timelineItems[i].removeFromTimeline(); 
+
+                //If current scene, go to previous scene
+                if(i == currScene) { prevScene(true); }            
             }
         } 
 

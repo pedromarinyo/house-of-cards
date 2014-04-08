@@ -15,6 +15,7 @@
     <script src="./scripts/libraries/leap.jquery.js"></script>   
     <script src="./scripts/libraries/recordRTC.js"></script>  
     <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v5.0.1.min.js"></script>
+    <script src="http://popcornjs.org/code/dist/popcorn-complete.min.js"></script>
     <!--Custom Scripts-->
     <script type="text/javascript" src="./scripts/objects.js" defer="defer"></script>
     <script type="text/javascript" src="./scripts/globals.js" defer="defer"></script>
@@ -26,10 +27,13 @@
 
 <body onLoad="init()">
 	<div id="wrapper">
-        <img src="assets/hoc.png" id="video">
-    	<!-- <video id="video">
-            <source src="./assets/hoc.mp4" type="video/mp4">   
-        </video> -->
+    	<video id="video">
+            <source src="./assets/galacticHeroes.mp4" type="video/mp4">   
+        </video>
+        <div id="message">
+            <div id="messageText">Select a character to follow.</div>
+            <img src="./assets/down.png" width="70" height="70">
+        </div>
         <div id="stage"></div>    
     </div>
 </body>

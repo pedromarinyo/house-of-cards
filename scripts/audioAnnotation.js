@@ -21,6 +21,7 @@ function toggleRecording() {
         	recorder.startRecording(); 
         	//Collecting annotation data
 			var timecode = video.currentTime;
+			var endTime = timecode + 15;
 			var timeCreated = new Date().getTime();
 			audioFileName = timeCreated;
 
@@ -28,9 +29,8 @@ function toggleRecording() {
 			$.ajax({
 			  	type: "POST",
 			  	url: "./scripts/serverContact.php",
-			  	data: {timecode:timecode, file: audioFileName, timeCreated: timeCreated, user: user, type: 'audio'},
-			  	success: function(data) {console.log("Successfully updated database");},
-			  	dataType: "JSON"
+			  	data: {timecode:timecode, file: audioFileName, timeCreated: timeCreated, endTime: endTime, user: user, type: 'audio', action: 'set'},
+			  	success: function(data) {console.log("Successfully updated database");}
 			});     	   
 		}, function(error) {
             alert( JSON.stringify (error, null, '\t') );

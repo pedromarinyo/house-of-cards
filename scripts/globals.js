@@ -5,12 +5,16 @@ var annotation_pane, annotationItem_pane;
 var user = 0;
 var sw = 1280; //Screen width
 var sh = 720; //Screen height
+var message = document.getElementById('message');
 
 //States
 var menuState = "root";
+var summary = false;
+var summaryFollowing;
 
 //Content
-var friends, characters, scenes; 
+var friends, characters, scenes, annotations; 
+var userTimeline;
 
 //Gesture delay
 var delayGesture = false; 
@@ -18,12 +22,14 @@ var isGrabbing = false;
 
 //Video
 var video = document.getElementById('video');
-var currScene = 3;
+var currScene = -1; //Starting state
+var currAnnotation = -1; //Starting state
 
 //Audio annotations
 var recorder;
 var recording = false;
 var audioFileName;
+var popcorn; //for syncing with video
 
 //Global Functions
 //__________________________________
@@ -42,7 +48,7 @@ function init() {
 	timeline_layer = new Kinetic.Layer({ x:0, y: 360, opacity: 0});
     gesture_layer = new Kinetic.Layer({ x:0, y: 0});
     
-    //Load assets
+    //Loading image assets
 	loadImages();
 
     //Create...
@@ -56,9 +62,9 @@ function init() {
 
 	//Scene objects
 	scenes =  new Array(
-        new Scene(new Array(characters[0]), 5, 9), 
-        new Scene(new Array(characters[2], characters[1]), 10, 15),
-        new Scene(new Array(characters[0]), 90, 100), 
+        new Scene(new Array(characters[0]), 0, 29), 
+        new Scene(new Array(characters[2], characters[1]), 30, 59),
+        new Scene(new Array(characters[0]), 60, 100), 
         new Scene(new Array(characters[1]), 120, 130), 
         new Scene(new Array(characters[0]), 200, 210),
         new Scene(new Array(characters[1]), 250, 260),
@@ -78,24 +84,52 @@ function init() {
         new Friend("Capt. Picard")
     );
 
+    //Fetch annotations from database
+    annotations = new Array();
+    $.ajax({
+        type: "POST",
+        url: "./scripts/serverContact.php",
+        data: {action: 'get'},  
+        dataType: "JSON",      
+        success: function(data) {    
+            data.forEach(function(entry) {
+                var annotation = new Annotation(
+                    entry.type,
+                    entry.scene,
+                    entry.timecode,
+                    entry.endTime,
+                    entry.usr,
+                    entry.file,
+                    entry.id
+                );
+                annotations.push(annotation);
+
+            });
+            console.log(annotations);
+            //Annotation Pane
+            annotation_pane = new AnnotationPane();
+            annotation_pane.init();
+        }
+    });
+
+    //Video sync
+    popcorn = Popcorn( "#video" );
+
 	//Navitation
     navigation_pane = new NavigationPane();
 	navigation_pane.init();
+    
     //Timeline
     timeline_pane = new TimelinePane();
     timeline_pane.init();
-    //Annotation Pane
-	annotation_pane = new AnnotationPane();
-	annotation_pane.init();
+    
     //Annotation Item Pane
 	annotationItem_pane = new AnnotationItemPane();
 	annotationItem_pane.init();
+    
     //Gesture Pane
     gesture_pane = new GesturePane();
     gesture_pane.init();
-    //Video
-    video.addEventListener('ended', summary, false); //Trigger for annotation summary
-    //Audio
 
 }
 
@@ -103,8 +137,8 @@ function transVideo(to) {
     if (to == "rotate") {
         $('#video').transition({
             perspective: '1280px',
-            rotateY: '-10deg',
-            scale: .85,
+            rotateY: '-15deg',
+            scale: .7,
             opacity: .6
         });
     } else {
@@ -159,7 +193,7 @@ $(document).ready(function () {
         //Q
         if (e.keyCode == 81) { prevScene();}
         //W
-        if (e.keyCode == 87) { nextScene();}
+        if (e.keyCode == 87) { nextScene(false);}
         //I
         if (e.keyCode == 73) { makeImageAnnotation();}
         //R
@@ -180,10 +214,10 @@ function down() {
     delayGesture = true;
     setTimeout(function(){delayGesture = false;}, 500);
     switch (menuState) {
-        case "root":
-        case "timeline":
-            annotation_pane.open();
-            timeline_pane.open(); 
+        case "root":        
+            annotation_pane.open(); 
+            menuState = "annotate";
+            if(!summary) {timeline_pane.open(); }
             gesture_pane.clearCircle();
             break;
         case "annotate":
@@ -201,8 +235,9 @@ function up() {
     setTimeout(function(){delayGesture = false;}, 500);
     switch (menuState) {
         case "root":
-        case "timeline":
+        case "summary":
             navigation_pane.open();
+            menuState = "navigate";
             timeline_pane.open();
             gesture_pane.clearCircle();
             break;
@@ -211,7 +246,7 @@ function up() {
             break;
         case "navigate":
             navigation_pane.selectorMove("up");
-            break;
+            break;        
     }
 }
 
@@ -225,11 +260,13 @@ function left(bypass) {
         case "annotate":
             annotation_pane.close();
             timeline_pane.close();
+            menuState = "root";
             break;       
         case "navigate":
             navigation_pane.close();
             timeline_pane.close();
-            break;
+            menuState = "root";
+            break;         
     }
 }
 
@@ -243,13 +280,12 @@ function right() {
             console.log("Next Scene");
             break;
         case "annotate":
+            if(summary) { summaryFollowing = annotation_pane.selectorPosition; nextAnnotation(); break; }
             annotation_pane.menuItems[annotation_pane.selectorPosition].toggle();
             break;
         case "navigate":
             navigation_pane.menuItems[navigation_pane.selectorPosition].toggle();            
             break;
-        case "summary":
-           // annotation_pane.menuItems[annotation_pane.selectorPosition].toggleSummary();
     }
 
 }
@@ -269,43 +305,144 @@ function right() {
 //Make image annotation
 function makeImageAnnotation() {
     console.log("Image annotation");
-
-
-}
-
-//Next scene
-function prevScene() {
-    if(delayGesture) {return;}
-    delayGesture = true;
-    setTimeout(function(){delayGesture = false;}, 500);
-
-    if(currScene > 0) {currScene--;}
-    else {return;}
-    video.currentTime = scenes[currScene].startTime;
-    console.log("prev scene");
 }
 
 //Previous scene
-function nextScene() {
-    if(delayGesture) {return;}
+function prevScene(bypass) {
+
+    if(!bypass && delayGesture) {return;}
     delayGesture = true;
     setTimeout(function(){delayGesture = false;}, 500);
 
-    if(currScene < scenes.length) {currScene++;}
-    else {return;}
+    if(currScene != -1) {scenes[currScene].removeCurrScene();}
+
+    do { 
+        if(currScene > 0) {currScene--; } 
+        else {
+            nextScene(true);
+            // video.pause(); 
+            // currScene = -1; 
+            // video.currentTime = 0; 
+            // $('#message').slideDown(); 
+            return;
+        }
+    } 
+    while (!scenes[currScene].isInTimeline);
+    
+    //Update timeline
+    scenes[currScene].setCurrScene();
+
+    //Play scene
     video.currentTime = scenes[currScene].startTime;
-    console.log("next scene");
+    video.play();
+
+    console.log("Previous scene: " + currScene);
 }
 
-//Summary, to be called upon video's end
-function summary() {
-    annotation_pane.open();
+//Next scene
+function nextScene(bypass) {
+    if(!bypass && delayGesture) {return;}
+    delayGesture = true;
+    setTimeout(function(){delayGesture = false;}, 500);
+
+    if(currScene != -1) {scenes[currScene].removeCurrScene();}
+
+    //Go to next scene in timeline
+    do { 
+        if(currScene < scenes.length - 1) {currScene++;} 
+        else {
+            video.pause(); 
+            //currScene = -1; 
+            video.currentTime = 0; 
+            $('#messageText').html("<img src='./assets/up.png' height='70' width='70'> <br>Please select another character or watch a friend's summary.");
+            $('#message').slideDown(); 
+            summary = true; 
+            summarizeAnnotations();
+            left(true);
+            return;
+        }
+    } 
+    while (!scenes[currScene].isInTimeline);
+
+    //Update timeline
+    scenes[currScene].setCurrScene();
+
+    //Play scene
+    video.currentTime = scenes[currScene].startTime;
+    video.play();
+    console.log("Next scene: " + currScene);
+    
+}
+
+//Summary, to be called upon end of timeline
+//_________________________________________________
+function summarizeAnnotations() {   
+    
+    //Turn off all annotations
+    friends.forEach(function(entry){
+        if(entry.isListening) {entry.toggle();}
+    });
+
     annotation_pane.header.setText("Summary");
 
     for(var i=1;i< annotation_pane.menuItems.length;i++) {
         annotation_pane.menuItems[i].listeningIcon.hide();
     }
-
-    annotation_layer.draw();
-    menuState = "summary";
+    annotation_layer.draw();   
+    currAnnotation = 0; 
+    summary = true;
 }
+
+
+function nextAnnotation() {
+    console.log("Next annotation");
+    //If select3ed all annotations
+    if(summaryFollowing == 0) {currAnnotation++;}
+    else {
+        do {
+            if(currAnnotation < currAnnotation.length - 1) {currAnnotation++;}
+            else {
+                video.pause();         
+                video.currentTime = 0; 
+                $('#messageText').html("<img src='./assets/up.png' height='70' width='70'><br> Please select another character or watch a friend's summary.");
+                $('#message').slideDown(); 
+                summary = true; 
+                summarizeAnnotations();
+                left(true);
+                return;
+            }
+        }
+        while (annotations[currAnnotation - 1].usr != summaryFollowing);  
+    }
+    
+
+    //Set video time to 5 secs before annotations start time
+    video.currentTime = annotations[currAnnotation].startTime - 5;
+    video.play();
+    //Create popcorn trigger event for annotation
+    console.log("Summary...");
+    var audio; //Holds the html audio element                        
+    popcorn.code({
+        id: entry.id,
+        start: entry.timecode,
+        end: entry.endTime,
+        onStart: function() {
+            audio = document.createElement("audio");
+            audio.src = "./annotations/audio/" + entry.file;
+            document.body.appendChild(audio);
+            audio.play();
+            console.log(entry);
+        },
+        onEnd: function() {
+            audio.pause();
+            audio.parentNode.removeChild(audio); 
+            nextAnnotation();                                   
+        }
+    });
+
+}
+
+function prevAnnotation() {
+
+}
+
